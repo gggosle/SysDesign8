@@ -1,0 +1,44 @@
+package com.sysdesign.banking.model;
+
+import jakarta.persistence.*;
+import lombok.*;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "transactions")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+public class Transaction {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "from_account_id")
+    private Account fromAccount;
+
+    @ManyToOne
+    @JoinColumn(name = "to_account_id")
+    private Account toAccount;
+
+    @Column(nullable = false, precision = 15, scale = 2)
+    private BigDecimal amount;
+
+    @Enumerated(EnumType.STRING)
+    private TransactionType type;
+
+    @Enumerated(EnumType.STRING)
+    private TransactionStatus status;
+
+    private String description;
+
+    @Column(name = "reference_number", unique = true, length = 50)
+    private String referenceNumber;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Column(name = "completed_at")
+    private LocalDateTime completedAt;
+}
