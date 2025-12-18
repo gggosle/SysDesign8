@@ -26,7 +26,7 @@ public class AuditLog {
     @Column(name = "user_id")
     private Integer userId;
 
-    // Postgres INET type → String
+    @JdbcTypeCode(SqlTypes.INET)
     @Column(name = "ip_address", columnDefinition = "INET")
     private String ipAddress;
 

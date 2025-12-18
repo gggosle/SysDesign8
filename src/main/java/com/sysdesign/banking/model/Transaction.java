@@ -2,6 +2,9 @@ package com.sysdesign.banking.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.dialect.PostgreSQLEnumJdbcType;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -26,10 +29,12 @@ public class Transaction {
     private BigDecimal amount;
 
     @Enumerated(EnumType.STRING)
+    @JdbcType(PostgreSQLEnumJdbcType.class)
     @Column(name = "type", columnDefinition = "transaction_type_enum")
     private TransactionType type;
 
     @Enumerated(EnumType.STRING)
+    @JdbcType(PostgreSQLEnumJdbcType.class)
     @Column(name = "status", columnDefinition = "transaction_status_enum")
     private TransactionStatus status;
 
