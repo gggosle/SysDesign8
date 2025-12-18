@@ -148,6 +148,13 @@ public class TransactionService {
         return transactionRepository.findByFromAccountIdOrderByCreatedAtDesc(accountId, PageRequest.of(page, size));
     }
 
+    public List<Transaction> getTransactionsForAccountBetween(Long accountId, LocalDateTime start, LocalDateTime end) {
+        List<Transaction> out = transactionRepository.findByFromAccountIdAndCreatedAtBetweenOrderByCreatedAtDesc(accountId, start, end);
+        List<Transaction> in = transactionRepository.findByToAccountIdAndCreatedAtBetweenOrderByCreatedAtDesc(accountId, start, end);
+        out.addAll(in);
+        return out;
+    }
+
     public List<AuditLogResponse> getAuditTrail(Long txId) {
         return auditLogRepository.findByTransactionIdOrderByTimestampAsc(txId)
                 .stream()

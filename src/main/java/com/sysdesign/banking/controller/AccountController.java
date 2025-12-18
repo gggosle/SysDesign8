@@ -1,6 +1,7 @@
 package com.sysdesign.banking.controller;
 
 import com.sysdesign.banking.dto.*;
+import com.sysdesign.banking.dto.mapper.TransactionMapper;
 import com.sysdesign.banking.model.*;
 import com.sysdesign.banking.service.*;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.math.BigDecimal;
+import java.time.YearMonth;
+import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -18,6 +22,7 @@ public class AccountController {
     private final TransactionService transactionService;
     private final RecurringService recurringService;
     private final AnalyticsService analyticsService;
+    private final TransactionMapper transactionMapper;
 
 
     @GetMapping("/accounts")
@@ -31,11 +36,13 @@ public class AccountController {
     }
 
     @GetMapping("/accounts/{id}/transactions")
-    public ResponseEntity<List<Transaction>> transactions(
+    public ResponseEntity<List<TransactionResponse>> transactions(
             @PathVariable Long id,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        return ResponseEntity.ok(transactionService.getTransactionsForAccount(id, page, size));
+        List<com.sysdesign.banking.model.Transaction> txs = transactionService.getTransactionsForAccount(id, page, size);
+        List<TransactionResponse> res = txs.stream().map(transactionMapper::toDto).collect(Collectors.toList());
+        return ResponseEntity.ok(res);
     }
 
     @PostMapping("/accounts/{id}/lock")
@@ -51,9 +58,26 @@ public class AccountController {
 
     @GetMapping("/statements/{month}")
     public ResponseEntity<StatementResponse> statement(@PathVariable String month, @RequestHeader("X-User-Id") Integer userId) {
-        // month = "2025-12" simple implementation: fetch transactions for user's accounts for that month
-        // For brevity return an empty wrapper or implement via SQL date filters
-        StatementResponse resp = StatementResponse.builder().month(month).transactions(List.of()).build();
+        YearMonth ym;
+        try {
+            ym = YearMonth.parse(month);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        LocalDateTime start = ym.atDay(1).atStartOfDay();
+        LocalDateTime end = ym.atEndOfMonth().atTime(23, 59, 59, 999_999_999);
+
+        List<AccountResponse> accounts = accountService.listByUser(userId);
+        List<TransactionResponse> transactions = accounts.stream()
+                .map(AccountResponse::id)
+                .flatMap(accId -> transactionService.getTransactionsForAccountBetween(accId, start, end).stream())
+                .map(transactionMapper::toDto)
+                .collect(Collectors.toList());
+
+        transactions.sort((a,b) -> b.createdAt().compareTo(a.createdAt()));
+
+        StatementResponse resp = StatementResponse.builder().month(month).transactions(transactions).build();
         return ResponseEntity.ok(resp);
     }
 

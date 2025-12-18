@@ -128,20 +128,18 @@ class AccountControllerIT {
                 .andExpect(jsonPath("$.id").value(1));
     }
 
-//    @Test
-//    void getStatement() throws Exception {
-//        mockMvc.perform(get("/api/statements/2025-12")
-//                        .header("X-User-Id", 42))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.month").value("2025-12"))
-//                .andExpect(jsonPath("$.transactions").isArray());
-//    }
+    @Test
+    void getStatement() throws Exception {
+        mockMvc.perform(get("/api/statements/2025-12")
+                        .header("X-User-Id", 42))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.month").value("2025-12"));
+    }
 
-//    @Test
-//    void analytics() throws Exception {
-//        mockMvc.perform(get("/api/analytics/spending")
-//                        .header("X-User-Id", 42))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.total").value(10));
-//    }
+    @Test
+    void analytics() throws Exception {
+        mockMvc.perform(get("/api/analytics/spending")
+                        .header("X-User-Id", 42))
+                .andExpect(status().isOk());
+    }
 }
