@@ -26,9 +26,11 @@ public class Transaction {
     private BigDecimal amount;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "type", columnDefinition = "transaction_type_enum")
     private TransactionType type;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "status", columnDefinition = "transaction_status_enum")
     private TransactionStatus status;
 
     private String description;

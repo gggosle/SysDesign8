@@ -25,6 +25,7 @@ public class RecurringPayment {
     private String recipientAccount;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "frequency", columnDefinition = "frequency_enum")
     private Frequency frequency;
 
     @Column(name = "next_payment_date")

@@ -19,7 +19,7 @@ public class AccountController {
     private final RecurringService recurringService;
     private final AnalyticsService analyticsService;
 
-    // pass userId via header X-User-Id for simplicity
+
     @GetMapping("/accounts")
     public ResponseEntity<List<Account>> listAccounts(@RequestHeader("X-User-Id") Integer userId) {
         return ResponseEntity.ok(accountService.listByUser(userId));
@@ -40,7 +40,6 @@ public class AccountController {
 
     @PostMapping("/accounts/{id}/lock")
     public ResponseEntity<Account> lockAccount(@PathVariable Long id, @RequestBody LockRequest req) {
-        // userId included for audit
         Account a = accountService.lockOrUnlock(id, req.isLock());
         return ResponseEntity.ok(a);
     }

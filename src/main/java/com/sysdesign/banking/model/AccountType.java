@@ -1,7 +1,15 @@
 package com.sysdesign.banking.model;
 
 public enum AccountType {
-    CHECKING,
-    SAVINGS,
-    CREDIT
+    checking,
+    savings,
+    credit;
+
+    public AccountType fromValue(int value) {
+        return AccountType.values()[value];
+    }
+
+    public int getValue() {
+        return this.ordinal();
+    }
 }

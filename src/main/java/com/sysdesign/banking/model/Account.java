@@ -2,13 +2,21 @@ package com.sysdesign.banking.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.annotations.Type;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 @Entity
 @Table(name = "accounts")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Account {
 
     @Id
@@ -22,7 +30,8 @@ public class Account {
     private String accountNumber;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "account_type")
+    @JdbcType(PostgreSQLEnumJdbcType.class)
+    @Column(name = "account_type", columnDefinition = "account_type_enum")
     private AccountType accountType;
 
     @Column(nullable = false, precision = 15, scale = 2)
