@@ -1,11 +1,7 @@
 package com.sysdesign.banking.service;
 
-import com.sysdesign.banking.dto.AuditLogResponse;
-import com.sysdesign.banking.dto.TransactionResponse;
 import com.sysdesign.banking.dto.TransferRequest;
 import com.sysdesign.banking.dto.PaymentRequest;
-import com.sysdesign.banking.dto.mapper.AuditLogMapper;
-import com.sysdesign.banking.dto.mapper.TransactionMapper;
 import com.sysdesign.banking.model.*;
 import com.sysdesign.banking.repo.*;
 import com.sysdesign.banking.exception.*;
@@ -16,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,9 +21,6 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final AuditLogRepository auditLogRepository;
     private final AccountRepository accountRepository;
-    private final RecurringPaymentRepository recurringRepo;
-    private final TransactionMapper transactionMapper;
-    private final AuditLogMapper auditLogMapper;
 
     /**
      * Transfer money between two accounts with ACID guarantees.
@@ -36,7 +28,7 @@ public class TransactionService {
      * (lower id first) to prevent deadlocks.
      */
     @Transactional(rollbackFor = Exception.class)
-    public TransactionResponse transfer(TransferRequest req) {
+    public Transaction transfer(TransferRequest req) {
         if (req.getFromAccountId().equals(req.getToAccountId())) {
             throw new IllegalArgumentException("Cannot transfer to same account");
         }
@@ -90,12 +82,12 @@ public class TransactionService {
                 .build();
         auditLogRepository.save(audit);
 
-        return transactionMapper.toDto(tx);
+        return tx;
     }
 
 
     @Transactional(rollbackFor = Exception.class)
-    public TransactionResponse payment(PaymentRequest req) {
+    public Transaction payment(PaymentRequest req) {
         if (req.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Amount must be positive");
         }
@@ -137,7 +129,7 @@ public class TransactionService {
                 .build();
         auditLogRepository.save(audit);
 
-        return transactionMapper.toDto(tx);
+        return tx;
     }
 
     private String generateReference() {
@@ -155,10 +147,7 @@ public class TransactionService {
         return out;
     }
 
-    public List<AuditLogResponse> getAuditTrail(Long txId) {
-        return auditLogRepository.findByTransactionIdOrderByTimestampAsc(txId)
-                .stream()
-                .map(auditLogMapper::toDto)
-                .collect(Collectors.toList());
+    public List<AuditLog> getAuditTrail(Long txId) {
+        return auditLogRepository.findByTransactionIdOrderByTimestampAsc(txId);
     }
 }

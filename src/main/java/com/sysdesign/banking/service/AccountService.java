@@ -1,6 +1,5 @@
 package com.sysdesign.banking.service;
 
-import com.sysdesign.banking.dto.AccountResponse;
 import com.sysdesign.banking.dto.mapper.AccountMapper;
 import com.sysdesign.banking.model.Account;
 import com.sysdesign.banking.repo.AccountRepository;
@@ -33,11 +32,11 @@ public class AccountService {
     }
 
     @Transactional
-    public AccountResponse lockOrUnlock(Long accountId, boolean lock) {
+    public Account lockOrUnlock(Long accountId, boolean lock) {
         Account acct = accountRepository.findByIdForUpdate(accountId)
                 .orElseThrow(() -> new NotFoundException("Account not found"));
         acct.setIsLocked(lock);
-        return accountMapper.toDto(accountRepository.save(acct));
+        return accountRepository.save(acct);
     }
 
     @Transactional

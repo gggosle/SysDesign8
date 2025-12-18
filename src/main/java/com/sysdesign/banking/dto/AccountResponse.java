@@ -9,10 +9,10 @@ import java.time.LocalDateTime;
 public record AccountResponse(
         Long id,
         Integer userId,
-        AccountType accountType,
-        Boolean isLocked,
         String accountNumber,
+        AccountType accountType,
         BigDecimal balance,
         String currency,
+        Boolean isLocked,
         LocalDateTime createdAt
 ) {}

@@ -1,6 +1,7 @@
 package com.sysdesign.banking.controller;
 
 import com.sysdesign.banking.dto.*;
+import com.sysdesign.banking.dto.mapper.AccountMapper;
 import com.sysdesign.banking.dto.mapper.TransactionMapper;
 import com.sysdesign.banking.model.*;
 import com.sysdesign.banking.service.*;
@@ -23,11 +24,17 @@ public class AccountController {
     private final RecurringService recurringService;
     private final AnalyticsService analyticsService;
     private final TransactionMapper transactionMapper;
+    private final AccountMapper accountMapper;
 
 
     @GetMapping("/accounts")
     public ResponseEntity<List<AccountResponse>> listAccounts(@RequestHeader("X-User-Id") Integer userId) {
-        return ResponseEntity.ok(accountService.listByUser(userId));
+        List<AccountResponse> accountResponses = accountService.listByUser(userId)
+                .stream()
+                .map(accountMapper::toDto)
+                .toList();
+
+        return ResponseEntity.ok(accountResponses);
     }
 
     @GetMapping("/accounts/{id}/balance")
@@ -47,8 +54,8 @@ public class AccountController {
 
     @PostMapping("/accounts/{id}/lock")
     public ResponseEntity<AccountResponse> lockAccount(@PathVariable Long id, @RequestBody LockRequest req) {
-        AccountResponse a = accountService.lockOrUnlock(id, req.isLock());
-        return ResponseEntity.ok(a);
+        Account a = accountService.lockOrUnlock(id, req.isLock());
+        return ResponseEntity.ok(accountMapper.toDto(a));
     }
 
     @PostMapping("/recurring/setup")
@@ -68,9 +75,9 @@ public class AccountController {
         LocalDateTime start = ym.atDay(1).atStartOfDay();
         LocalDateTime end = ym.atEndOfMonth().atTime(23, 59, 59, 999_999_999);
 
-        List<AccountResponse> accounts = accountService.listByUser(userId);
+        List<Account> accounts = accountService.listByUser(userId);
         List<TransactionResponse> transactions = accounts.stream()
-                .map(AccountResponse::id)
+                .map(Account::getId)
                 .flatMap(accId -> transactionService.getTransactionsForAccountBetween(accId, start, end).stream())
                 .map(transactionMapper::toDto)
                 .collect(Collectors.toList());
