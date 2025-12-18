@@ -6,9 +6,6 @@ import com.sysdesign.banking.model.TransactionType;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-/**
- * DTO for exposing Transaction data through the API.
- */
 public record TransactionResponse(
         Long id,
         Long fromAccountId,

@@ -139,12 +139,6 @@ class AccountControllerIT {
 
 //    @Test
 //    void analytics() throws Exception {
-//        SpendingAnalyticsResponse resp =
-//                new SpendingAnalyticsResponse(BigDecimal.TEN);
-//
-//        when(analyticsService.spending(42))
-//                .thenReturn(resp);
-//
 //        mockMvc.perform(get("/api/analytics/spending")
 //                        .header("X-User-Id", 42))
 //                .andExpect(status().isOk())

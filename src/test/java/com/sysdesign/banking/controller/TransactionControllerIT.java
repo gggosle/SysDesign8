@@ -77,7 +77,7 @@ class TransactionControllerIT {
     void auditEndpointReturnsList() throws Exception {
         mockMvc.perform(get("/api/audit/218242"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].action").value("TRANSFER"));
+                .andExpect(jsonPath("$[0].id").value(1800215))
+                .andExpect(jsonPath("$[0].action").value("UPDATE"));
     }
 }
