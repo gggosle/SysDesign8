@@ -3,6 +3,9 @@ package com.sysdesign.banking.dto;
 import java.time.LocalDateTime;
 import com.fasterxml.jackson.databind.JsonNode;
 
+/**
+ * DTO для записів аудиту (AuditLog) що повертаються через API.
+ */
 public record AuditLogResponse(
         Long id,
         Long transactionId,
@@ -12,4 +15,3 @@ public record AuditLogResponse(
         JsonNode details,
         LocalDateTime timestamp
 ) {}
-

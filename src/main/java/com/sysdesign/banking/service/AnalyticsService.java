@@ -11,6 +11,19 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Сервіс для аналітики витрат користувача.
+ *
+ * Опис:
+ * - Обчислює сумарні витрати користувача та розподіл витрат за типами транзакцій.
+ * - Витрати інтерпретуються як вихідні транзакції (тобто транзакції, де користувач
+ *   є відправником — `fromAccount`). Депозити (вхідні) за замовчуванням не включені.
+ *
+ * Зауваження щодо продуктивності:
+ * - Використовується метод репозиторію `findByFromAccountIdIn(...)`, який формує SQL
+ *   з `IN (...)`. Для великої кількості ідентифікаторів це може бути неефективно;
+ *   у такому випадку розгляньте альтернативні підходи (запит з JOIN або батчинг).
+ */
 @Service
 @RequiredArgsConstructor
 public class AnalyticsService {
@@ -18,8 +31,22 @@ public class AnalyticsService {
     private final TransactionRepository transactionRepository;
     private final AccountRepository accountRepository;
 
+    /**
+     * Обчислити витрати користувача.
+     *
+     * Вхідні параметри:
+     * @param userId ідентифікатор користувача
+     *
+     * Повертає:
+     * - {@link SpendingAnalyticsResponse} з полем totalSpent (сума витрат) та
+     *   byType — мапа, що містить суму витрат по кожному типу транзакції.
+     *
+     * Поведінка:
+     * - Якщо у користувача немає рахунків, повертається нульовий результат.
+     * - Транзакції з null сумою пропускаються; депозити (тип `deposit`) не враховуються.
+     */
     public SpendingAnalyticsResponse spending(Integer userId) {
-        // fetch user's accounts
+        // отримати рахунки користувача
         var accounts = accountRepository.findByUserId(userId);
         if (accounts == null || accounts.isEmpty()) {
             return SpendingAnalyticsResponse.builder()
@@ -30,7 +57,7 @@ public class AnalyticsService {
 
         List<Long> accountIds = accounts.stream().map(a -> a.getId()).collect(Collectors.toList());
 
-        // fetch outgoing transactions for these accounts
+        // отримати вихідні транзакції для цих рахунків
         List<Transaction> outgoing = transactionRepository.findByFromAccountIdIn(accountIds);
         if (outgoing == null) outgoing = Collections.emptyList();
 
@@ -39,7 +66,7 @@ public class AnalyticsService {
 
         for (Transaction t : outgoing) {
             if (t.getAmount() == null) continue;
-            // consider deposits as incoming; exclude them from spending
+            // депозит — це вхідна операція, не вважаємо її витратою
             if (t.getType() == TransactionType.deposit) continue;
 
             BigDecimal amount = t.getAmount();

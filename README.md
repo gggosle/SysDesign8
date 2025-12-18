@@ -1,67 +1,67 @@
 # SysDesign8
 
-This project is a simple banking backend used for a systems design exercise. It demonstrates a Spring Boot application with JPA, Flyway migrations, a PostgreSQL database (run via Docker Compose), and HTTP JSON APIs for accounts, transactions, recurring payments and basic analytics.
+Цей проект є простим банківським бекендом, що використовується для вправи з проектування систем. Він демонструє застосування Spring Boot з JPA, міграціями Flyway, базою даних PostgreSQL (яка запускається за допомогою Docker Compose) та HTTP JSON API для рахунків, транзакцій, періодичних платежів та базової аналітики.
 
-## Prerequisites
-- Java 17+ (or the project's configured Java version)
-- Gradle (the wrapper `./gradlew` is included)
-- Docker and Docker Compose (to run the PostgreSQL database)
+## Попередні вимоги
+- Java 17+ (або версія Java, налаштована для проекту)
+- Gradle (включено обгортку `./gradlew`)
+- Docker та Docker Compose (для запуску бази даних PostgreSQL)
 
-## Quick start
-1. Make sure nothing is listening on port 5432 on your machine. If something is, stop it or change the Docker Compose port mapping.
+## Швидкий старт
+1. Переконайтеся, що нічого не слухає на порту 5432 на вашій машині. Якщо щось слухає, зупиніть це або змініть відображення порту Docker Compose.
 
-2. Start the database with Docker Compose (from project root):
+2. Запустіть базу даних за допомогою Docker Compose (з кореневої папки проекту):
 
 ```bash
-# start postgres defined in docker/docker-compose.yml detached
+# запустити postgres, визначений у docker/docker-compose.yml, у фоновому режимі
 docker compose -f docker/docker-compose.yml up -d --force-recreate
 
-# show compose services and ports
+# показати служби та порти compose
 docker compose -f docker/docker-compose.yml ps
 ```
 
-3. Build and run the Spring Boot application locally (the app will pick up DB settings from `src/main/resources/application.yaml`):
+3. Побудуйте та запустіть застосунок Spring Boot локально (застосунок підхопить налаштування бази даних з `src/main/resources/application.yaml`):
 
 ```bash
-# build (skip tests for faster iteration)
+# збірка (пропустити тести для швидшої ітерації)
 ./gradlew clean build -x test
 
-# run the app
+# запустити застосунок
 ./gradlew bootRun
 ```
 
-4. The application runs by default on http://localhost:8080
+4. Застосунок за замовчуванням працює на http://localhost:8080
 
-If you prefer to run the app in Docker (not included here), build the jar and create a Dockerfile that runs it, or use `./gradlew bootJar` and a small container image.
+Якщо ви надаєте перевагу запуску застосунку в Docker (не включено тут), побудуйте jar-файл та створіть Dockerfile, який його запускає, або використовуйте `./gradlew bootJar` та невеликий образ контейнера.
 
-## Notes about the DB
-- If the container logs say "PostgreSQL Database directory appears to contain a database; Skipping initialization" it means a database directory already exists in the named volume. That's okay if it contains your schema/data.
-- If Flyway migrations didn't run or `flyway_schema_history` is empty while tables exist, that indicates data was seeded outside of Flyway (or a previous init created the schema). Confirm the migrations and Flyway configuration in `src/main/resources/application.yaml`.
+## Примітки щодо бази даних
+- Якщо журнали контейнера повідомляють "Директорія бази даних PostgreSQL, здається, містить базу даних; Пропуск ініціалізації", це означає, що директорія бази даних вже існує в зазначеному томі. Це нормально, якщо вона містить вашу схему/дані.
+- Якщо міграції Flyway не були виконані або `flyway_schema_history` порожня, тоді як таблиці існують, це вказує на те, що дані були заповнені поза межами Flyway (або попередня ініціалізація створила схему). Підтвердіть міграції та налаштування Flyway у `src/main/resources/application.yaml`.
 
-## API: quick curl examples
-- Base URL: http://localhost:8080/api
-- Many endpoints require a user header: `X-User-Id: <userId>`
+## API: швидкі приклади curl
+- Базовий URL: http://localhost:8080/api
+- Багато кінцевих точок вимагають заголовок користувача: `X-User-Id: <userId>`
 
-1) List accounts for a user
+1) Список рахунків для користувача
 ```bash
 curl -v -H "X-User-Id: 42" \
   http://localhost:8080/api/accounts
 ```
-Expected: 200 OK, JSON array of account objects (AccountResponse DTO)
+Очікується: 200 OK, JSON масив об'єктів рахунків (DTO AccountResponse)
 
-2) Get account balance
+2) Отримати баланс рахунку
 ```bash
 curl -v http://localhost:8080/api/accounts/1/balance
 ```
-Expected: 200 OK, body is a number/string with the balance (e.g. "1006.55")
+Очікується: 200 OK, тіло є числом/рядком з балансом (наприклад, "1006.55")
 
-3) Get transactions for an account (paginated)
+3) Отримати транзакції для рахунку (пагіновані)
 ```bash
 curl -v "http://localhost:8080/api/accounts/1/transactions?page=0&size=20"
 ```
-Expected: 200 OK, JSON array of `TransactionResponse` DTOs.
+Очікується: 200 OK, JSON масив DTO `TransactionResponse`.
 
-4) Make a transfer
+4) Зробити переказ
 ```bash
 curl -v -X POST \
   -H "Content-Type: application/json" \
@@ -74,9 +74,9 @@ curl -v -X POST \
   }' \
   http://localhost:8080/api/transfers
 ```
-Expected: 200 OK, JSON TransactionResponse for the created transaction.
+Очікується: 200 OK, JSON TransactionResponse для створеної транзакції.
 
-5) Make a payment
+5) Зробити платіж
 ```bash
 curl -v -X POST \
   -H "Content-Type: application/json" \
@@ -89,18 +89,18 @@ curl -v -X POST \
   }' \
   http://localhost:8080/api/payments
 ```
-Expected: 200 OK, JSON TransactionResponse for the created transaction.
+Очікується: 200 OK, JSON TransactionResponse для створеної транзакції.
 
-6) Lock/unlock account
+6) Заблокувати/розблокувати рахунок
 ```bash
 curl -v -X POST \
   -H "Content-Type: application/json" \
   -d '{"lock": true}' \
   http://localhost:8080/api/accounts/1/lock
 ```
-Expected: 200 OK, AccountResponse with `isLocked: true`.
+Очікується: 200 OK, AccountResponse з `isLocked: true`.
 
-7) Setup recurring payment
+7) Налаштування періодичного платежу
 ```bash
 curl -v -X POST \
   -H "Content-Type: application/json" \
@@ -113,30 +113,29 @@ curl -v -X POST \
   }' \
   http://localhost:8080/api/recurring/setup
 ```
-Expected: 200 OK, created RecurringPayment object (JSON)
+Очікується: 200 OK, створений об'єкт RecurringPayment (JSON)
 
-8) Get monthly statement (YYYY-MM)
+8) Отримати щомісячну виписку (YYYY-MM)
 ```bash
 curl -v -H "X-User-Id: 42" \
   http://localhost:8080/api/statements/2025-12
 ```
-Expected: 200 OK, JSON StatementResponse { month: "2025-12", transactions: [ ... TransactionResponse ... ] }
+Очікується: 200 OK, JSON StatementResponse { month: "2025-12", transactions: [ ... TransactionResponse ... ] }
 
-9) Get spending analytics for user
+9) Отримати аналітику витрат для користувача
 ```bash
 curl -v -H "X-User-Id: 42" \
   http://localhost:8080/api/analytics/spending
 ```
-Expected: 200 OK, JSON SpendingAnalyticsResponse { totalSpent: <number>, byType: {"TRANSFER": .., "PAYMENT": .. } }
+Очікується: 200 OK, JSON SpendingAnalyticsResponse { totalSpent: <number>, byType: {"TRANSFER": .., "PAYMENT": .. } }
 
-10) Get audit trail for a transaction
+10) Отримати журнал аудиту для транзакції
 ```bash
 curl -v http://localhost:8080/api/audit/123
 ```
-Expected: 200 OK, JSON array of AuditLogResponse entries (id, action, userId, details, timestamp)
+Очікується: 200 OK, JSON масив записів AuditLogResponse (id, action, userId, details, timestamp)
 
-## Troubleshooting tips
-- If you see: "Failed to configure a DataSource: 'url' attribute is not specified" — ensure the app has correct DB properties and the right Spring profile is active or the DB is running.
-- If Docker commands fail with permission denied on /var/run/docker.sock, run the Docker Compose command with `sudo` or add your user to the `docker` group (recommended to adjust system permissions).
-- If Flyway reports "Unsupported Database: PostgreSQL 15.15", ensure you use a compatible Flyway/Postgres combination and that the Flyway configuration in `application.yaml` is correct.
-
+## Поради щодо усунення неполадок
+- Якщо ви бачите: "Не вдалося налаштувати DataSource: атрибут 'url' не вказано" — переконайтеся, що у застосунку правильні властивості бази даних, активний правильний профіль Spring або база даних запущена.
+- Якщо команди Docker завершуються з помилкою доступу до /var/run/docker.sock, запустіть команду Docker Compose з `sudo` або додайте свого користувача до групи `docker` (рекомендується відрегулювати системні дозволи).
+- Якщо Flyway повідомляє "Непідтримувана база даних: PostgreSQL 15.15", переконайтеся, що ви використовуєте сумісну комбінацію Flyway/Postgres і що налаштування Flyway у `application.yaml` правильні.

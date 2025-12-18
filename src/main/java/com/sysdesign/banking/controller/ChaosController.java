@@ -7,6 +7,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
+/**
+ * Невеликий контролер для включення "chaos mode" під час тестування/демонстрацій.
+ * Використовуйте обережно — змінює глобальний стан застосунку.
+ */
 @RestController
 @RequestMapping("/api/chaos")
 public class ChaosController {

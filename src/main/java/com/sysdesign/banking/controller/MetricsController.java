@@ -7,6 +7,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
+/**
+ * Контролер, що повертає внутрішні метрики застосунку (корисно для локальної діагностики).
+ *
+ * Примітка: значення тут приблизні і не призначені для production-grade monitoring.
+ */
 @RestController
 @RequestMapping("/api")
 public class MetricsController {
