@@ -21,7 +21,7 @@ public class AccountController {
 
 
     @GetMapping("/accounts")
-    public ResponseEntity<List<Account>> listAccounts(@RequestHeader("X-User-Id") Integer userId) {
+    public ResponseEntity<List<AccountResponse>> listAccounts(@RequestHeader("X-User-Id") Integer userId) {
         return ResponseEntity.ok(accountService.listByUser(userId));
     }
 
@@ -39,8 +39,8 @@ public class AccountController {
     }
 
     @PostMapping("/accounts/{id}/lock")
-    public ResponseEntity<Account> lockAccount(@PathVariable Long id, @RequestBody LockRequest req) {
-        Account a = accountService.lockOrUnlock(id, req.isLock());
+    public ResponseEntity<AccountResponse> lockAccount(@PathVariable Long id, @RequestBody LockRequest req) {
+        AccountResponse a = accountService.lockOrUnlock(id, req.isLock());
         return ResponseEntity.ok(a);
     }
 

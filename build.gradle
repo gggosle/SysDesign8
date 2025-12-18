@@ -29,6 +29,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.flywaydb:flyway-database-postgresql:10.6.0'
+    implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
     runtimeOnly 'org.postgresql:postgresql'
     implementation 'org.flywaydb:flyway-core:10.6.0'
     compileOnly 'org.projectlombok:lombok'

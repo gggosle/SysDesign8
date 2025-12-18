@@ -2,6 +2,9 @@ package com.sysdesign.banking.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.dialect.PostgreSQLEnumJdbcType;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -25,6 +28,7 @@ public class RecurringPayment {
     private String recipientAccount;
 
     @Enumerated(EnumType.STRING)
+    @JdbcType(PostgreSQLEnumJdbcType.class)
     @Column(name = "frequency", columnDefinition = "frequency_enum")
     private Frequency frequency;
 

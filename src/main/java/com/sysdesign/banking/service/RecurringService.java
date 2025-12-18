@@ -21,7 +21,7 @@ public class RecurringService {
                 .id(req.getAccountId())
                 .amount(req.getAmount())
                 .recipientAccount(req.getRecipientAccount())
-                .frequency(Frequency.valueOf(req.getFrequency().toUpperCase()))
+                .frequency(Frequency.valueOf(req.getFrequency()))
                 .nextPaymentDate(req.getNextPaymentDate() != null ? req.getNextPaymentDate() : LocalDate.now())
                 .isActive(true)
                 .build();

@@ -1,5 +1,7 @@
 package com.sysdesign.banking.service;
 
+import com.sysdesign.banking.dto.AccountResponse;
+import com.sysdesign.banking.dto.mapper.AccountMapper;
 import com.sysdesign.banking.model.Account;
 import com.sysdesign.banking.repo.AccountRepository;
 import com.sysdesign.banking.exception.*;
@@ -15,9 +17,13 @@ import java.util.List;
 public class AccountService {
 
     private final AccountRepository accountRepository;
+    private final AccountMapper accountMapper;
 
-    public List<Account> listByUser(Integer userId) {
-        return accountRepository.findByUserId(userId);
+    public List<AccountResponse> listByUser(Integer userId) {
+        return accountRepository.findByUserId(userId)
+                .stream()
+                .map(accountMapper::toDto)
+                .toList();
     }
 
     public BigDecimal getBalance(Long accountId) {
@@ -27,11 +33,11 @@ public class AccountService {
     }
 
     @Transactional
-    public Account lockOrUnlock(Long accountId, boolean lock) {
+    public AccountResponse lockOrUnlock(Long accountId, boolean lock) {
         Account acct = accountRepository.findByIdForUpdate(accountId)
                 .orElseThrow(() -> new NotFoundException("Account not found"));
         acct.setIsLocked(lock);
-        return accountRepository.save(acct);
+        return accountMapper.toDto(accountRepository.save(acct));
     }
 
     @Transactional
